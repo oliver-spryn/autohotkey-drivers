@@ -5,15 +5,15 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; File locatoin
-configFile = config.db
+configFile = config.ini
 
 ; Test settings
 annotation =
 browserN =
 browserV =
+build =
 client =
 env =
-patho =
 
 ; Browser settings
 chromeN =
@@ -22,8 +22,10 @@ firefoxN =
 firefoxV =
 ieN =
 ieV =
-icN =
-icV =
+icDualN =
+icDualV =
+icSingleN =
+icSingleV =
 
 IfExist, %configFile%
 {
@@ -39,8 +41,8 @@ IfExist, %configFile%
 				client := A_LoopField
 			} else if (key == "Test Environment") {
 				env := A_LoopField
-			} else if (key == "Pathology Build") {
-				patho := A_LoopField
+			} else if (key == "Build") {
+				build := A_LoopField
 			} else if (key == "Chrome Name") {
 				chromeN := A_LoopField
 			} else if (key == "Chrome Version") {
@@ -53,10 +55,14 @@ IfExist, %configFile%
 				ieN := A_LoopField
 			} else if (key == "IE Version") {
 				ieV := A_LoopField
-			} else if (key == "Installed Client Name") {
-				icN := A_LoopField
-			} else if (key == "Installed Client Version") {
-				icV := A_LoopField
+			} else if (key == "Installed Client Dual Name") {
+				icDualN := A_LoopField
+			} else if (key == "Installed Client Dual Version") {
+				icDualV := A_LoopField
+			} else if (key == "Installed Client Single Name") {
+				icSingleN := A_LoopField
+			} else if (key == "Installed Client Single Version") {
+				icSingleV := A_LoopField
 			}
 
 			key := A_LoopField
@@ -71,14 +77,29 @@ IfExist, %configFile%
 ;;; Tool tray menu options
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-Menu, Tray, Tip, Chrome
+Menu, Tray, Tip, Chrome ; Icon tooltip
+Menu, Tray, nostandard  ; Hide default options
 
-Menu, Tray, nostandard
+Menu, Tray, Add, Ctrl + Win + A = Fill out start screen, noop
+Menu, Tray, Disable, Ctrl + Win + A = Fill out start screen
+Menu, Tray, Add, Ctrl + Win + P = Pass test step, noop
+Menu, Tray, Disable, Ctrl + Win + P = Pass test step
+Menu, Tray, Add, Ctrl + Win + F = Fail test step, noop
+Menu, Tray, Disable, Ctrl + Win + F = Fail test step
+Menu, Tray, Add, Ctrl + Win + D = Finish and close test, noop
+Menu, Tray, Disable, Ctrl + Win + D = Finish and close test
+
+Menu, Tray, Add ; Divider line
+
 Menu, Tray, Add, Chrome, chrome
 Menu, Tray, Check, Chrome
 Menu, Tray, Add, Firefox, firefox
 Menu, Tray, Add, Internet Explorer, ie
-Menu, Tray, Add, Installed Client, ic
+Menu, Tray, Add, Installed Client (Dual), icDual
+Menu, Tray, Add, Installed Client (Single), icSingle
+
+Menu, Tray, Add ; Divider line
+
 Menu, Tray, Add, Edit Configuration, edit
 Menu, Tray, Add, Reload, reload
 Menu, Tray, Add, Exit, exit
@@ -111,7 +132,7 @@ if(option == "chrome") {
 }
 
 Send, {tab}{tab}{tab}{tab}   ; Get to the first field
-Send, %annotation%{tab}%client%{tab}%patho%{tab}%na%{tab}%browserN%{tab}%browserV%{tab}%patho%{tab}{tab}%na%{tab}{tab}%env%{tab}
+Send, %annotation%{tab}%client%{tab}%build%{tab}%na%{tab}%browserV%{tab}%build%{tab}%browserN%{tab}{tab}%na%{tab}{tab}%env%{tab}
 return
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -217,7 +238,8 @@ removeOld() {
 	Menu, Tray, Uncheck, Chrome
 	Menu, Tray, Uncheck, Firefox
 	Menu, Tray, Uncheck, Internet Explorer
-	Menu, Tray, Uncheck, Installed Client
+	Menu, Tray, Uncheck, Installed Client (Dual)
+	Menu, Tray, Uncheck, Installed Client (Single)
 }
 
 tip(browser, version) {
@@ -240,9 +262,12 @@ toggleNew() {
 	} else if (option == "ie") {
 		Menu, Tray, Check, Internet Explorer
 		Menu, Tray, Tip, Internet Explorer
-	} else if (option == "ic") {
-		Menu, Tray, Check, Installed Client
-		Menu, Tray, Tip, Installed Client
+	} else if (option == "icDual") {
+		Menu, Tray, Check, Installed Client (Dual)
+		Menu, Tray, Tip, Installed Client (Dual)
+	} else if (option == "icSingle") {
+		Menu, Tray, Check, Installed Client (Single)
+		Menu, Tray, Tip, Installed Client (Single)
 	}
 }
 
@@ -270,6 +295,9 @@ IfWinExist, Manual Runner: Test Set
 	WinActivate, ahk_id %active%
 	WinSet, Top, , Manual Runner: Test Set
 }
+return
+
+noop:
 return
 
 ^#0::
@@ -315,12 +343,23 @@ toggleNew()
 return
 
 ^#4::
-tip("the Installed Client", icV)
+tip("the Installed Client (Dual)", icDualV)
 
-ic:
+icDual:
 removeOld()
-option = ic
-optionText = Installed Client
-optionVersion := icV
+option = icDual
+optionText = Installed Client (Dual)
+optionVersion := icDualV
+toggleNew()
+return
+
+^#5::
+tip("the Installed Client (Single)", icSingleV)
+
+icSingle:
+removeOld()
+option = icSingle
+optionText = Installed Client (Single)
+optionVersion := icSingleV
 toggleNew()
 return
