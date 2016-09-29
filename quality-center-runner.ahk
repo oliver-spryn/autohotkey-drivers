@@ -126,9 +126,12 @@ if(option == "chrome") {
 } else if (option == "ie") {
 	browserN := ieN
 	browserV := ieV
-} else if (option == "ic") {
-	browserN := icN
-	browserV := icV
+} else if (option == "icDual") {
+	browserN := icDualN
+	browserV := icDualV
+} else if (option == "icSingle") {
+	browserN := icSingleN
+	browserV := icSingleV
 }
 
 Send, {tab}{tab}{tab}{tab}   ; Get to the first field
